@@ -1,0 +1,39 @@
+# Automatic text-file detection
+* text=auto
+
+# Cross-platform project files use LF
+*.md text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.txt text eol=lf
+*.svg text eol=lf
+*.urdf text eol=lf
+*.xacro text eol=lf
+CMakeLists.txt text eol=lf
+
+# Windows-specific scripts use CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary engineering and media files
+*.FCStd binary
+*.step binary
+*.stp binary
+*.stl binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.mp4 binary
+*.mov binary
+*.wav binary
