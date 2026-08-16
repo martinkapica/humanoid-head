@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Outlet settings · Humanoid Control{% endblock %}
+{% block head %}<script defer src="{{ url_for('static', filename='settings.js') }}"></script>{% endblock %}
+{% block content %}
+<header class="module-header"><div><div class="module-kicker">CONTROL / POWER / SETTINGS</div><h1>Outlets</h1><p class="module-description">Names, visibility and operational confirmations</p></div></header>
+{% include "settings/_nav.html" %}
+<div class="settings-outlet-list" data-config-version="{{ system.config_version }}">
+{% for outlet in outlets %}
+<form class="panel outlet-settings-form" data-outlet-id="{{ outlet.outlet_id }}" data-revision="{{ outlet.revision }}">
+    <div class="panel-header">OUTLET {{ outlet.outlet_id }}</div>
+    <div class="settings-grid">
+        <label class="field-group"><span class="field-label">NAME</span><input class="field-control" name="name" maxlength="48" value="{{ outlet.name }}" required></label>
+        <label class="field-group field-wide"><span class="field-label">DESCRIPTION</span><input class="field-control" name="description" maxlength="120" value="{{ outlet.description }}"></label>
+        <label class="field-group"><span class="field-label">CRITICALITY</span><select class="field-control" name="criticality"><option value="NORMAL" {% if outlet.criticality.value == 'NORMAL' %}selected{% endif %}>NORMAL</option><option value="CRITICAL" {% if outlet.criticality.value == 'CRITICAL' %}selected{% endif %}>CRITICAL</option></select></label>
+        <label class="switch-row"><input type="checkbox" name="dashboard_visible" {% if outlet.dashboard_visible %}checked{% endif %}><span>Show on dashboard</span></label>
+        <label class="switch-row"><input type="checkbox" name="control_enabled" {% if outlet.control_enabled %}checked{% endif %}><span>Control enabled</span></label>
+        <label class="switch-row"><input type="checkbox" name="confirm_on" {% if outlet.confirm_on %}checked{% endif %}><span>Confirm switch ON</span></label>
+        <label class="switch-row"><input type="checkbox" name="confirm_off" {% if outlet.confirm_off %}checked{% endif %}><span>Confirm switch OFF</span></label>
+    </div>
+    <button class="button button-primary" type="submit">Save outlet</button>
+</form>
+{% endfor %}
+</div>
+{% endblock %}

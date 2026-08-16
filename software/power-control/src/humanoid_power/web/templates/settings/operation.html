@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Operation settings · Humanoid Control{% endblock %}
+{% block head %}<script defer src="{{ url_for('static', filename='settings.js') }}"></script>{% endblock %}
+{% block content %}
+<header class="module-header"><div><div class="module-kicker">CONTROL / POWER / SETTINGS</div><h1>Operation</h1><p class="module-description">Global control policy for all clients</p></div></header>
+{% include "settings/_nav.html" %}
+<section class="panel settings-panel">
+<form id="profile-form" data-config-version="{{ system.config_version }}">
+    <div class="profile-grid">
+    {% for value, title, description in [
+        ('MONITOR','Monitor','Read-only app. Existing hardware schedules may continue.'),
+        ('DIRECT','Direct','Manual web control. Active hardware schedules are prohibited.'),
+        ('TIMED','Timed','Manual control and verified hardware schedule editing.')
+    ] %}
+    <label class="profile-card {% if system.active_profile.value == value %}selected{% endif %}">
+        <input type="radio" name="profile" value="{{ value }}" {% if system.active_profile.value == value %}checked{% endif %}>
+        <span class="profile-title">{{ title }}</span><span>{{ description }}</span>
+    </label>
+    {% endfor %}
+    </div>
+    <div class="settings-summary">Controller {{ state.controller.status }} · {{ state.automation_count }} active schedule(s)</div>
+    <button class="button button-primary" type="submit">Apply profile</button>
+</form>
+</section>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Manual · Humanoid Control{% endblock %}
+{% block head %}<script defer src="{{ url_for('static', filename='manual.js') }}"></script>{% endblock %}
+{% block content %}
+<header class="module-header">
+    <div>
+        <div class="module-kicker">CONTROL / POWER</div>
+        <h1>Power</h1>
+        <p class="module-description">Energenie controller · 4 outlets</p>
+    </div>
+    <button class="button button-secondary" id="refresh-state" type="button">Refresh</button>
+</header>
+
+{% if state.profile == 'MONITOR' %}
+<div class="alert alert-warning">
+    <strong>MONITOR · READ ONLY</strong><br>
+    Manual commands are disabled. Existing hardware schedules may remain active.
+</div>
+{% endif %}
+
+<section class="panel" aria-labelledby="outlets-heading">
+    <div class="panel-header" id="outlets-heading">Outlets</div>
+    <div id="outlet-list" data-config-version="{{ state.config_version }}">
+    {% for outlet in state.outlets %}
+        <article class="outlet-row" data-outlet-id="{{ outlet.outlet_id }}"
+                 data-confirm-on="{{ outlet.confirm_on|tojson }}"
+                 data-confirm-off="{{ outlet.confirm_off|tojson }}"
+                 {% if not outlet.dashboard_visible and not outlet.forced_visible %}hidden{% endif %}>
+            <div class="outlet-identity">
+                <div class="outlet-id">OUTLET {{ outlet.outlet_id }}</div>
+                <h2 class="outlet-name">{{ outlet.name }}</h2>
+                {% if outlet.description %}<p class="outlet-description">{{ outlet.description }}</p>{% endif %}
+                <span class="badge badge-critical {% if outlet.criticality != 'CRITICAL' %}hidden{% endif %}">CRITICAL</span>
+                <span class="badge badge-muted forced-visible {% if not outlet.forced_visible %}hidden{% endif %}">FORCED VISIBLE</span>
+            </div>
+            <div class="outlet-state-block">
+                <div class="state-label">REPORTED STATE</div>
+                <div class="state-value state-{{ outlet.reported_state|lower }}">{{ outlet.reported_state }}</div>
+                <div class="state-meta">
+                    <span class="quality quality-{{ outlet.data_quality|lower }}">{{ outlet.data_quality }}</span>
+                    <span class="confirmed-time">
+                        {% if outlet.confirmed_at_utc %}CONTROLLER CONFIRMED · {{ outlet.confirmed_at_utc }}{% else %}Never confirmed{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="automation-block {% if not outlet.schedule.active %}hidden{% endif %}">
+                <div class="state-label">AUTOMATION</div>
+                <div class="automation-state">SCHEDULE ACTIVE</div>
+                <div class="next-event">
+                    {% if outlet.schedule.next_event_local %}
+                        Next {{ outlet.schedule.next_event_local }} · {{ outlet.schedule.next_action or 'CHANGE' }}
+                    {% else %}
+                        Next event unknown
+                    {% endif %}
+                </div>
+                <div class="schedule-note">Manual command affects the current state only.</div>
+            </div>
+            <div class="operation-block" aria-live="polite">
+                <div class="operation-status">
+                    {% if outlet.active_operation %}{{ outlet.active_operation.status }}{% elif outlet.last_operation %}{{ outlet.last_operation.status }}{% endif %}
+                </div>
+                {% set target = 'OFF' if outlet.reported_state == 'ON' else 'ON' %}
+                <button class="button button-primary outlet-action"
+                        data-target="{{ target }}"
+                        {% if not outlet.manual_allowed %}disabled{% endif %}>
+                    {% if outlet.reported_state == 'ON' %}Turn off{% elif outlet.reported_state == 'OFF' %}Turn on{% else %}State unknown{% endif %}
+                </button>
+            </div>
+        </article>
+    {% endfor %}
+    </div>
+</section>
+
+<dialog id="critical-dialog" class="confirmation-dialog">
+    <form method="dialog">
+        <div class="module-kicker">CRITICAL OUTLET</div>
+        <h2>Confirm power command</h2>
+        <p id="critical-summary"></p>
+        <p class="schedule-note" id="critical-automation-note"></p>
+        <div class="dialog-actions">
+            <button class="button button-secondary" value="cancel">Cancel</button>
+            <button class="button button-danger" id="critical-confirm" value="confirm">Confirm command</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}

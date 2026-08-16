@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Humanoid Control{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+{% if current_user.is_authenticated %}
+    <header class="app-header">
+        <div>
+            <div class="app-name">HUMANOID CONTROL</div>
+            <div class="app-area">CONTROL / POWER</div>
+        </div>
+        <div class="header-status condition-{{ nav_state.module_condition|lower }}">
+            <span>POWER {{ nav_state.controller.status }}</span>
+            <span>PROFILE {{ nav_state.profile }}</span>
+            {% if nav_state.automation_count %}
+                <span>AUTOMATION ACTIVE · {{ nav_state.automation_count }}</span>
+            {% endif %}
+        </div>
+        <form action="{{ url_for('auth.logout') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="button button-quiet" type="submit">Sign out</button>
+        </form>
+    </header>
+
+    <nav class="primary-nav" aria-label="Power module views">
+        <a class="nav-link {% if request.endpoint == 'views.manual' %}active{% endif %}"
+           href="{{ url_for('views.manual') }}">Manual</a>
+        {% if nav_settings.show_schedules_tab or nav_state.automation_count %}
+            <a class="nav-link {% if request.endpoint in ['views.schedules', 'views.schedule_detail'] %}active{% endif %}"
+               href="{{ url_for('views.schedules') }}">Schedules</a>
+        {% endif %}
+        {% if nav_settings.show_activity_tab or nav_state.module_condition != 'NORMAL' %}
+            <a class="nav-link {% if request.endpoint == 'views.activity' %}active{% endif %}"
+               href="{{ url_for('views.activity') }}">Activity</a>
+        {% endif %}
+        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('views.settings_') %}active{% endif %}"
+           href="{{ url_for('views.settings_operation') }}">Settings</a>
+    </nav>
+{% endif %}
+
+<main class="workspace {% if not current_user.is_authenticated %}workspace-login{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="message-stack" aria-live="polite">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div id="global-message" class="alert hidden" role="alert" aria-live="assertive"></div>
+    {% block content %}{% endblock %}
+</main>
+{% block scripts %}{% endblock %}
+</body>
+</html>

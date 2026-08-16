@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Schedule {{ details.outlet.outlet_id }} · Humanoid Control{% endblock %}
+{% block head %}<script defer src="{{ url_for('static', filename='schedules.js') }}"></script>{% endblock %}
+{% block content %}
+<header class="module-header">
+    <div>
+        <div class="module-kicker">CONTROL / POWER / SCHEDULE</div>
+        <h1>{{ details.outlet.name }}</h1>
+        <p class="module-description">Outlet {{ details.outlet.outlet_id }} · Controller hardware schedule</p>
+    </div>
+    <a class="button button-secondary" href="{{ url_for('views.schedules') }}">Back</a>
+</header>
+
+{% set can_edit = details.editable and system.active_profile.value == 'TIMED' and details.outlet.control_enabled %}
+{% if not can_edit %}
+<div class="alert alert-warning">
+    <strong>READ ONLY</strong><br>
+    Schedule changes require TIMED profile, an enabled outlet and a current controller readback.
+</div>
+{% endif %}
+
+<section class="panel schedule-editor-panel">
+    <div class="panel-header panel-header-split">
+        <span>Schedule editor</span>
+        <span class="panel-meta">Controller time basis {{ controller_time_basis }} · {{ system.timezone }}</span>
+    </div>
+    <form id="schedule-form"
+          data-outlet-id="{{ details.outlet.outlet_id }}"
+          data-config-version="{{ system.config_version }}"
+          data-schedule-hash="{{ details.schedule_hash }}"
+          data-editable="{{ can_edit|tojson }}">
+        <div id="event-list" class="event-list">
+        {% if details.schedule.events %}
+            {% for event in details.schedule.events %}
+            <div class="event-row">
+                <label class="field-group"><span class="field-label">DATE</span>
+                    <input class="field-control event-date" type="date" value="{{ event.local_date.isoformat() }}" required {% if not can_edit %}disabled{% endif %}>
+                </label>
+                <label class="field-group"><span class="field-label">TIME</span>
+                    <input class="field-control event-time" type="time" value="{{ event.local_time.strftime('%H:%M') }}" required {% if not can_edit %}disabled{% endif %}>
+                </label>
+                <label class="field-group"><span class="field-label">ACTION</span>
+                    <select class="field-control event-action" {% if not can_edit %}disabled{% endif %}>
+                        <option value="ON" {% if event.action.value == 'ON' %}selected{% endif %}>ON</option>
+                        <option value="OFF" {% if event.action.value == 'OFF' %}selected{% endif %}>OFF</option>
+                    </select>
+                </label>
+                <button class="button button-quiet event-remove" type="button" {% if not can_edit %}disabled{% endif %}>Remove</button>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="event-row">
+                <label class="field-group"><span class="field-label">DATE</span>
+                    <input class="field-control event-date" type="date" required {% if not can_edit %}disabled{% endif %}>
+                </label>
+                <label class="field-group"><span class="field-label">TIME</span>
+                    <input class="field-control event-time" type="time" required {% if not can_edit %}disabled{% endif %}>
+                </label>
+                <label class="field-group"><span class="field-label">ACTION</span>
+                    <select class="field-control event-action" {% if not can_edit %}disabled{% endif %}>
+                        <option value="ON">ON</option><option value="OFF">OFF</option>
+                    </select>
+                </label>
+                <button class="button button-quiet event-remove" type="button" disabled>Remove</button>
+            </div>
+        {% endif %}
+        </div>
+        <button class="button button-secondary button-small" id="add-event" type="button" {% if not can_edit %}disabled{% endif %}>Add event</button>
+
+        <div class="repeat-grid">
+            <label class="field-group"><span class="field-label">REPEAT</span>
+                <select class="field-control" id="repeat-mode" {% if not can_edit %}disabled{% endif %}>
+                    {% for value, label in [('NONE','No repeat'),('DAILY','Daily'),('WEEKLY','Weekly'),('CUSTOM','Custom interval')] %}
+                    <option value="{{ value }}" {% if details.schedule.repeat_mode.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-group {% if details.schedule.repeat_mode.value != 'CUSTOM' %}hidden{% endif %}" id="custom-loop-group">
+                <span class="field-label">INTERVAL / MINUTES</span>
+                <input class="field-control" id="loop-minutes" type="number" min="1" step="1"
+                       value="{% if details.schedule.repeat_mode.value == 'CUSTOM' %}{{ details.schedule.loop_minutes }}{% endif %}"
+                       {% if not can_edit %}disabled{% endif %}>
+            </label>
+        </div>
+        <div class="editor-actions">
+            <button class="button button-primary" type="submit" {% if not can_edit %}disabled{% endif %}>Review and save</button>
+            {% if details.schedule.active %}
+            <button class="button button-danger" id="delete-schedule" type="button" {% if not can_edit %}disabled{% endif %}>Delete schedule</button>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+<template id="event-row-template">
+    <div class="event-row">
+        <label class="field-group"><span class="field-label">DATE</span><input class="field-control event-date" type="date" required></label>
+        <label class="field-group"><span class="field-label">TIME</span><input class="field-control event-time" type="time" required></label>
+        <label class="field-group"><span class="field-label">ACTION</span><select class="field-control event-action"><option value="ON">ON</option><option value="OFF">OFF</option></select></label>
+        <button class="button button-quiet event-remove" type="button">Remove</button>
+    </div>
+</template>
+
+<dialog id="schedule-dialog" class="confirmation-dialog">
+    <form method="dialog">
+        <div class="module-kicker">HARDWARE SCHEDULE</div>
+        <h2 id="schedule-dialog-title">Confirm schedule</h2>
+        <p id="schedule-dialog-summary"></p>
+        <div class="dialog-actions">
+            <button class="button button-secondary" value="cancel">Cancel</button>
+            <button class="button button-primary" id="schedule-dialog-confirm" value="confirm">Confirm</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}

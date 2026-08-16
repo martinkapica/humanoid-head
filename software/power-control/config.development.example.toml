@@ -1,0 +1,30 @@
+[application]
+timezone = "Europe/Berlin"
+database_path = "./power-development.db"
+secret_key_path = "./development-secret.key"
+runtime_enabled = true
+require_time_sync = false
+
+[controller]
+adapter = "fake"
+hardware_accepted = false
+binary_path = "/usr/bin/sispmctl"
+allowed_outlets = [1, 2, 3, 4]
+command_timeout_seconds = 3.0
+minimum_switch_interval_seconds = 2.0
+
+[polling]
+outlet_interval_seconds = 2.0
+stale_after_seconds = 5.0
+offline_after_seconds = 15.0
+schedule_interval_seconds = 30.0
+backoff_max_seconds = 30.0
+
+[queue]
+maximum_operations = 20
+
+[web]
+trusted_hosts = ["localhost", "127.0.0.1"]
+proxy_count = 0
+session_idle_minutes = 60
+session_absolute_hours = 12

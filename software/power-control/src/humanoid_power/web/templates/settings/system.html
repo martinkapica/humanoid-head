@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}System settings · Humanoid Control{% endblock %}
+{% block content %}
+<header class="module-header"><div><div class="module-kicker">CONTROL / POWER / SETTINGS</div><h1>Security &amp; System</h1><p class="module-description">Runtime status and administrator credentials</p></div></header>
+{% include "settings/_nav.html" %}
+<section class="panel diagnostic-list">
+    <div class="diagnostic-row"><span>Application version</span><strong>{{ app_version }}</strong></div>
+    <div class="diagnostic-row"><span>Controller status</span><strong>{{ controller_status }}</strong></div>
+    <div class="diagnostic-row"><span>System time synchronized</span><strong>{{ 'YES' if time_synchronized else 'NO' }}</strong></div>
+    <div class="diagnostic-row"><span>sispmctl binary</span><code>{{ controller_binary }}</code></div>
+    <div class="diagnostic-row"><span>Hardware acceptance</span><strong>{{ 'APPROVED' if hardware_accepted else 'BLOCKED' }}</strong></div>
+    <div class="diagnostic-row"><span>Current login</span><strong>{{ login_at_utc or 'UNKNOWN' }}</strong></div>
+    <div class="diagnostic-row"><span>Transport</span><strong>{{ 'HTTPS' if https_active else 'HTTP · DEVELOPMENT ONLY' }}</strong></div>
+</section>
+<section class="panel settings-panel" aria-labelledby="password-title">
+    <div class="panel-header" id="password-title">Change administrator password</div>
+    <form action="{{ url_for('auth.change_password') }}" method="post" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="field-group"><span class="field-label">CURRENT PASSWORD</span>
+            <input class="field-control" type="password" name="current_password" autocomplete="current-password" required>
+        </label>
+        <label class="field-group"><span class="field-label">NEW PASSWORD</span>
+            <input class="field-control" type="password" name="new_password" autocomplete="new-password" minlength="12" maxlength="128" required>
+        </label>
+        <label class="field-group"><span class="field-label">REPEAT NEW PASSWORD</span>
+            <input class="field-control" type="password" name="confirm_password" autocomplete="new-password" minlength="12" maxlength="128" required>
+        </label>
+        <button class="button button-primary" type="submit">Change password</button>
+    </form>
+</section>
+{% endblock %}

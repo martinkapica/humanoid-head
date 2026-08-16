@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humanoid-power"
+version = "0.1.0"
+description = "Local operator interface for the Humanoid Control power module"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Flask>=3.1,<4",
+    "Flask-Login>=0.6.3,<0.7",
+    "Flask-WTF>=1.2.2,<1.3",
+    "gunicorn>=23,<24",
+    "tzdata>=2026.3,<2027",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.17,<2",
+    "pytest>=8.4,<9",
+    "pytest-cov>=6.2,<7",
+    "ruff>=0.12,<1",
+]
+
+[project.scripts]
+humanoid-power = "humanoid_power.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+humanoid_power = [
+    "infrastructure/migrations/*.sql",
+    "web/templates/*.html",
+    "web/templates/settings/*.html",
+    "web/static/*.css",
+    "web/static/*.js",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers --disable-warnings"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["humanoid_power"]
+
+[[tool.mypy.overrides]]
+module = ["flask_login.*", "flask_wtf.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "humanoid_power.app",
+    "humanoid_power.web.api",
+    "humanoid_power.web.auth",
+    "humanoid_power.web.views",
+]
+disallow_untyped_decorators = false

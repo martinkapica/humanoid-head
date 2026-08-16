@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Activity · Humanoid Control{% endblock %}
+{% block content %}
+<header class="module-header">
+    <div><div class="module-kicker">CONTROL / POWER</div><h1>Activity</h1><p class="module-description">Commands, settings and security events</p></div>
+</header>
+<form class="filter-bar" method="get">
+    <label><span class="field-label">OUTLET</span><select class="field-control" name="outlet"><option value="">All</option>{% for id in range(1,5) %}<option value="{{ id }}" {% if request.args.get('outlet') == id|string %}selected{% endif %}>Outlet {{ id }}</option>{% endfor %}</select></label>
+    <label><span class="field-label">SEVERITY</span><select class="field-control" name="severity"><option value="">All</option>{% for value in ['INFO','WARNING','ERROR','CRITICAL'] %}<option value="{{ value }}" {% if request.args.get('severity') == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+    <label><span class="field-label">CATEGORY</span><select class="field-control" name="category"><option value="">All</option>{% for value in ['HARDWARE_OPERATION','SETTINGS','SECURITY'] %}<option value="{{ value }}" {% if request.args.get('category') == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+    <button class="button button-secondary" type="submit">Apply filters</button>
+</form>
+<section class="panel">
+    <div class="panel-header">Recent events</div>
+    {% for event in events %}
+    <article class="activity-row severity-{{ event.severity|lower }}">
+        <div><div class="outlet-id">{{ event.category }}</div><strong>{{ event.display_message }}</strong></div>
+        <div>{{ event.occurred_at_utc }}</div>
+        <div>{% if event.outlet_id %}Outlet {{ event.outlet_id }}{% else %}System{% endif %}</div>
+        <details {% if nav_settings.technical_details_default %}open{% endif %}><summary>Details</summary><pre>{{ event.details|tojson(indent=2) }}</pre></details>
+    </article>
+    {% else %}<div class="empty-state">No events match the selected filters.</div>{% endfor %}
+</section>
+{% endblock %}

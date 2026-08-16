@@ -37,3 +37,12 @@ CMakeLists.txt text eol=lf
 *.mp4 binary
 *.mov binary
 *.wav binary
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.lock text eol=lf
+*.service text eol=lf
+*.sql text eol=lf
+*.example text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf

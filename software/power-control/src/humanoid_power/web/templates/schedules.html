@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Schedules · Humanoid Control{% endblock %}
+{% block content %}
+<header class="module-header">
+    <div>
+        <div class="module-kicker">CONTROL / POWER</div>
+        <h1>Hardware schedules</h1>
+        <p class="module-description">Schedules continue inside the controller when the web app is stopped.</p>
+    </div>
+</header>
+
+{% if state.profile != 'TIMED' %}
+<div class="alert alert-warning">
+    <strong>{{ state.profile }} · SCHEDULE EDITING DISABLED</strong><br>
+    Existing controller schedules remain visible. In MONITOR they may continue running.
+</div>
+{% endif %}
+
+<section class="panel" aria-labelledby="schedule-list-heading">
+    <div class="panel-header" id="schedule-list-heading">Controller schedules</div>
+    {% for outlet in state.outlets %}
+    <article class="schedule-row">
+        <div>
+            <div class="outlet-id">OUTLET {{ outlet.outlet_id }}</div>
+            <h2 class="outlet-name">{{ outlet.name }}</h2>
+        </div>
+        <div>
+            <div class="state-label">SCHEDULE</div>
+            <div class="state-value schedule-status-{{ outlet.schedule.status|lower }}">{{ outlet.schedule.status }}</div>
+            <div class="state-meta">{{ outlet.schedule.data_quality }} · {{ outlet.schedule.event_count }} event(s) · {{ outlet.schedule.repeat_mode }}</div>
+        </div>
+        <div>
+            <div class="state-label">NEXT EVENT</div>
+            <div class="schedule-summary">
+                {% if outlet.schedule.next_event_local %}
+                    {{ outlet.schedule.next_event_local }} · {{ outlet.schedule.next_action or 'CHANGE' }}
+                {% else %}None known{% endif %}
+            </div>
+        </div>
+        <a class="button button-secondary" href="{{ url_for('views.schedule_detail', outlet_id=outlet.outlet_id) }}">View / Edit</a>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

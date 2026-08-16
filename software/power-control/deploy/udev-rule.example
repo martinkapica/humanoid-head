@@ -1,0 +1,3 @@
+# Determine the real values with `lsusb` and `udevadm info`; do not enable this template.
+# Replace both placeholders, then install as /etc/udev/rules.d/99-humanoid-power.rules.
+SUBSYSTEM=="usb", ATTR{idVendor}=="REPLACE_VENDOR_ID", ATTR{idProduct}=="REPLACE_PRODUCT_ID", GROUP="humanoid-power", MODE="0660"

@@ -1,0 +1,31 @@
+[application]
+timezone = "Europe/Berlin"
+database_path = "/var/lib/humanoid-control/power.db"
+secret_key_path = "/etc/humanoid-control/secret.key"
+runtime_enabled = true
+require_time_sync = true
+
+[controller]
+adapter = "sispmctl"
+# Set to true only after completing docs/hardware/energenie-behavior.md.
+hardware_accepted = false
+binary_path = "/usr/bin/sispmctl"
+allowed_outlets = [1, 2, 3, 4]
+command_timeout_seconds = 3.0
+minimum_switch_interval_seconds = 2.0
+
+[polling]
+outlet_interval_seconds = 2.0
+stale_after_seconds = 5.0
+offline_after_seconds = 15.0
+schedule_interval_seconds = 30.0
+backoff_max_seconds = 30.0
+
+[queue]
+maximum_operations = 20
+
+[web]
+trusted_hosts = ["humanoid.local"]
+proxy_count = 1
+session_idle_minutes = 60
+session_absolute_hours = 12

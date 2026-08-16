@@ -1,0 +1,6 @@
+<nav class="settings-nav" aria-label="Settings sections">
+    <a class="nav-link {% if request.endpoint == 'views.settings_operation' %}active{% endif %}" href="{{ url_for('views.settings_operation') }}">Operation</a>
+    <a class="nav-link {% if request.endpoint == 'views.settings_outlets' %}active{% endif %}" href="{{ url_for('views.settings_outlets') }}">Outlets</a>
+    <a class="nav-link {% if request.endpoint == 'views.settings_interface' %}active{% endif %}" href="{{ url_for('views.settings_interface') }}">Interface</a>
+    <a class="nav-link {% if request.endpoint == 'views.settings_system' %}active{% endif %}" href="{{ url_for('views.settings_system') }}">Security &amp; System</a>
+</nav>

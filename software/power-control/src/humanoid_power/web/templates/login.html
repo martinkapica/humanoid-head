@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Humanoid Control{% endblock %}
+{% block content %}
+<section class="login-panel" aria-labelledby="login-title">
+    <div class="module-kicker">HUMANOID CONTROL</div>
+    <h1 id="login-title">Operator sign in</h1>
+    <p class="module-description">Local power control · Authorized access only</p>
+    <form method="post" class="stack-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ next_path or '' }}">
+        <label class="field-group">
+            <span class="field-label">USERNAME</span>
+            <input class="field-control" name="username" autocomplete="username" required autofocus>
+        </label>
+        <label class="field-group">
+            <span class="field-label">PASSWORD</span>
+            <input class="field-control" type="password" name="password"
+                   autocomplete="current-password" required>
+        </label>
+        <button class="button button-primary" type="submit">Sign in</button>
+    </form>
+</section>
+{% endblock %}

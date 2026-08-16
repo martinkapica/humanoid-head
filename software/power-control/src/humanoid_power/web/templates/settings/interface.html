@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Interface settings · Humanoid Control{% endblock %}
+{% block head %}<script defer src="{{ url_for('static', filename='settings.js') }}"></script>{% endblock %}
+{% block content %}
+<header class="module-header"><div><div class="module-kicker">CONTROL / POWER / SETTINGS</div><h1>Interface</h1><p class="module-description">Global module visibility</p></div></header>
+{% include "settings/_nav.html" %}
+<section class="panel settings-panel">
+<form id="interface-form" data-config-version="{{ system.config_version }}">
+    <label class="switch-row"><input type="checkbox" name="show_schedules_tab" {% if system.show_schedules_tab %}checked{% endif %}><span>Show Schedules in navigation</span></label>
+    <label class="switch-row"><input type="checkbox" name="show_activity_tab" {% if system.show_activity_tab %}checked{% endif %}><span>Show Activity in navigation</span></label>
+    <label class="switch-row"><input type="checkbox" name="technical_details_default" {% if system.technical_details_default %}checked{% endif %}><span>Show technical details by default</span></label>
+    <p class="schedule-note">Active schedules and relevant faults remain visible regardless of these settings.</p>
+    <button class="button button-primary" type="submit">Save interface</button>
+</form>
+</section>
+{% endblock %}
